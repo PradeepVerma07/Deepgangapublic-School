@@ -1,0 +1,185 @@
+@extends('admin.layouts.app')
+@section('title', $title)
+@section('comp', $comp)
+@section('css')
+@endsection
+@section('content')
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+        <h5>Menu List</h5>
+        <form method="GET" action="{{ route('admin.menus.index') }}" class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+            <div class="me-3">
+                <div class="input-icon-end position-relative">
+                    <input type="text" class="form-control" placeholder="Search" name="search" value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="me-3">
+                <div class="input-icon-end position-relative">
+                    <input type="text" class="form-control date-range bookingrange" placeholder="dd/mm/yyyy - dd/mm/yyyy" name="date_range" value="{{ request('date_range') }}">
+                    <span class="input-icon-addon">
+                        <i class="ti ti-chevron-down"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="dropdown me-3">
+                <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    {{ request('status') ? (request('status') == 1 ? 'Active' : 'Inactive') : 'Select Status' }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1" onclick="this.closest('form').querySelector('[name=status]').value='1';this.closest('form').submit();">Active</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1" onclick="this.closest('form').querySelector('[name=status]').value='0';this.closest('form').submit();">Inactive</a>
+                    </li>
+                </ul>
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{{ route('admin.menus.index') }}" class="btn btn-secondary ms-2">Reset</a>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table no-footer">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Sr.No.</th>
+                        <th>Title</th>
+                        <th>URL</th>
+                        <th>Icon</th>
+                        <th>Parent</th>
+                        <th>Description</th>
+                        <th>Sequence</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $srNo = ($menus->currentPage() - 1) * $menus->perPage() + 1; @endphp
+                    @foreach($menus as $menu)
+                        <tr>
+                            <td>{{ $srNo++ }}</td>
+                            <td>{{ $menu->title }}</td>
+                            <td>{{ $menu->url }}</td>
+                            <td>{{ $menu->icon }}</td>
+                            <td>{{ $menu->parentMenu ? $menu->parentMenu->title : 'None' }}</td>
+                            <td>{{ $menu->description }}</td>
+                            <td>
+                                <input type="number" value="{{ $menu->seq}}" data="{{ $menu->id }},admin_menus,id,seq" class="change-indexing form-control text-center" style="width:80px" min="0">
+                            </td>
+                            <td>
+                                <span class="changeStatus"
+                                    data-toggle="change-status"
+                                    value="{{ ($menu->active == 1) ? 0 : 1 }}"
+                                    data="{{ $menu->id }},admin_menus,id,active">
+                                    <i class="{{ ($menu->active == 1) ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark' }}"
+                                    title="Click to change status"></i>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-icon d-inline-flex">
+                                    <a href="{{ route('admin.menus.edit', $menu->id) }}" class="me-2"><i class="ti ti-edit"></i></a>
+                                    <a href="javascript:void(0);" onclick="_delete(this)"
+                                            url="{{ route('admin.menus.destroy', $menu->id) }}"
+                                            type="button" title="Delete {{ $menu->title }}">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        @foreach($menu->children as $child)
+                            <tr>
+                                <td>{{ $srNo++ }}</td>
+                                <td>&nbsp;&nbsp;&nbsp;{{ $child->title }}</td>
+                                <td>{{ $child->url }}</td>
+                                <td>{{ $child->icon }}</td>
+                                <td>{{ $child->parentMenu ? $child->parentMenu->title : 'None' }}</td>
+                                <td>{{ $child->description }}</td>
+                                <td>
+                                    <input type="number" value="{{ $child->seq}}" data="{{ $child->id }},admin_menus,id,seq" class="change-indexing form-control text-center" style="width:80px" min="0">
+                                </td>
+                                <td>
+                                    <span class="changeStatus"
+                                        data-toggle="change-status"
+                                        value="{{ ($child->active == 1) ? 0 : 1 }}"
+                                        data="{{ $child->id }},admin_menus,id,active">
+                                        <i class="{{ ($child->active == 1) ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark' }}"
+                                        title="Click to change status"></i>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-icon d-inline-flex">
+                                        <a href="{{ route('admin.menus.edit', $child->id) }}" class="me-2"><i class="ti ti-edit"></i></a>
+                                        <a href="javascript:void(0);" onclick="_delete(this)"
+                                            url="{{ route('admin.menus.destroy', $child->id) }}"
+                                            type="button" title="Delete {{ $child->title }}">
+                                            <i class="ti ti-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @foreach($child->children as $grandchild)
+                                <tr>
+                                    <td>{{ $srNo++ }}</td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $grandchild->title }}</td>
+                                    <td>{{ $grandchild->url }}</td>
+                                    <td>{{ $grandchild->icon }}</td>
+                                    <td>{{ $grandchild->parentMenu ? $grandchild->parentMenu->title : 'None' }}</td>
+                                    <td>{{ $grandchild->description }}</td>
+                                    <td>
+                                        <input type="number" value="{{ $grandchild->seq}}" data="{{ $grandchild->id }},admin_menus,id,seq" class="change-indexing form-control text-center" style="width:80px" min="0">
+                                    </td>
+                                    <td>
+                                        <span class="changeStatus"
+                                            data-toggle="change-status"
+                                            value="{{ ($grandchild->active == 1) ? 0 : 1 }}"
+                                            data="{{ $grandchild->id }},admin_menus,id,active">
+                                            <i class="{{ ($grandchild->active == 1) ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark' }}"
+                                            title="Click to change status"></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-icon d-inline-flex">
+                                            <a href="{{ route('admin.menus.edit', $grandchild->id) }}" class="me-2"><i class="ti ti-edit"></i></a>
+                                            <a href="javascript:void(0);" onclick="_delete(this)"
+                                            url="{{ route('admin.menus.destroy', $grandchild->id) }}"
+                                            type="button" title="Delete {{ $grandchild->title }}">
+                                                <i class="ti ti-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endforeach
+                    @endforeach
+                </tbody>
+            </table>
+            <div class="row p-4">
+                <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
+                        Showing {{ $menus->firstItem() }} - {{ $menus->lastItem() }} of {{ $menus->total() }} entries
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-7">
+                    {{ $menus->links('admin.layouts.pagination') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+@push('breadcrumb-buttons')
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="mb-2">
+            <a href="{{ route('admin.menus.create') }}" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add Menu</a>
+        </div>
+        <div class="head-icons ms-2">
+            <a href="javascript:void(0);" class="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Collapse" id="collapse-header">
+                <i class="ti ti-chevrons-up"></i>
+            </a>
+        </div>
+    </div>
+@endpush
+@push('scripts')
+@endpush

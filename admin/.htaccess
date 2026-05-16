@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
 <IfModule mod_negotiation.c>
-Options -MultiViews
+Options -MultiViews -Indexes
 </IfModule>
 
 RewriteEngine On
@@ -17,12 +17,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
 </IfModule>
 
-<Files .env>
-    Order allow,deny
-    Deny from all
-</Files>
-
-<Files .zip>
-    Order allow,deny
-    Deny from all
-</Files>
+<FilesMatch "^\.|(\.env|\.log|\.sql|\.gz|\.zip|\.tar|\.rar|composer\.(json|lock)|package(-lock)?\.json|artisan)$">
+    Require all denied
+</FilesMatch>

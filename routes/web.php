@@ -2,33 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\HomeController;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
-
-
-
-Route::get('/run-commands', function () {
-    Artisan::call('storage:link');
-    Artisan::call('optimize:clear');
-    Artisan::call('cache:clear');
-    return "Commands executed successfully!";
-});
-
-
-Route::get('/copy-storage', function () {
-    $source = storage_path('app/public');
-    $destination = public_path('storage');
-
-    if (!File::exists($destination)) {
-        File::makeDirectory($destination, 0755, true);
-    }
-
-    File::copyDirectory($source, $destination);
-
-    return "Storage files copied successfully!";
-});
-
-
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/contact-us', [HomeController::class, 'contact'])->name('contact-us');
@@ -41,7 +14,7 @@ Route::get('/student-excellence', [HomeController::class, 'brandPartner'])->name
 Route::get('/admissions', [HomeController::class, 'training'])->name('training');
 Route::get('/online-registration', [HomeController::class, 'membershipOffer'])->name('membership-offer');
 Route::get('/academics', [HomeController::class, 'academy'])->name('academy');
-Route::get('/academy', [HomeController::class, 'academy'])->name('academy');
+Route::get('/academy', [HomeController::class, 'academy'])->name('academy.legacy');
 Route::get('student-excellence/notice', [homeController::class, 'notices'])->name('notices');
 Route::get('/our-services', [HomeController::class, 'ourServices'])->name('our-services');
 Route::get('student-excellence/toppers', [HomeController::class, 'allToppers'])->name('all-toppers');
@@ -62,5 +35,3 @@ Route::get('/services-detail/{slug}', [HomeController::class, 'servicesDetail'])
 // Route::get('tuition-fee', [HomeController::class, 'tuitionfee'])->name('tuition.fee');
 // Route::get('facilities', [HomeController::class, 'facilities'])->name('facilities');
 // Route::get('excellence', [HomeController::class, 'excellence'])->name('excellence');
-
-

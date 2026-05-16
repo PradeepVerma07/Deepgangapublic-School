@@ -23,3 +23,7 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<FilesMatch "^\.|(\.env|\.log|\.sql|\.gz|\.zip|\.tar|\.rar|composer\.(json|lock)|package(-lock)?\.json|artisan)$">
+    Require all denied
+</FilesMatch>

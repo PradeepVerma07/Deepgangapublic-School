@@ -18,6 +18,7 @@ class Section extends Model
         'content',
         'heading',
         'file_path',
+        'files',
         'seq',
         'active',
     ];
@@ -28,6 +29,7 @@ class Section extends Model
             'active' => 'boolean',
             'seq' => 'integer',
             'type' => 'string',
+            'files' => 'array',
         ];
     }
 
